@@ -123,7 +123,7 @@ class Maze(tk.Tk, object):
                 if (s_ == hell_rects[i]).all():
                     reward = -10
                     done = True
-                    s_ = 'hell'
+                    s_ = 'terminal'
                     return s_, reward, done
         # normal
         reward = -1
@@ -136,6 +136,7 @@ class Maze(tk.Tk, object):
     # key pressed call back function
     def on_key_pressed(self, event):
         char = event.char
+        self.render()
         if char in self.action_space:
             action = self.action_space.index(char)
             s, r, done = self.step(action)

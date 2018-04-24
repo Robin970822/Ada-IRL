@@ -32,7 +32,7 @@ class RL(object):
             state_action = self.q_table.loc[observation, :]
             state_action = state_action.reindex(
                 np.random.permutation(state_action.index
-            ))
+                                      ))
             action = state_action.idxmax()
         else:
             # choose random action
@@ -53,3 +53,47 @@ class RL(object):
                     name=state
                 )
             )
+
+
+# Q-learning
+class QLearning(RL):
+    def __init__(self, actions,
+                 learning_rate=0.01,
+                 reward_decay=0.9,
+                 e_greedy=0.9):
+        super(QLearning, self).__init__(actions,
+                                        learning_rate,
+                                        reward_decay,
+                                        e_greedy)
+
+    def learn(self, s, a, r, s_):
+        self.check_state_exist(s_)
+        q_predict = self.q_table.loc[s, a]
+        if s_ != 'terminal':
+            q_target = r + self.Gamma * self.q_table.loc[s_, a]
+        else:
+            q_target = r
+        self.q_table.loc[s, a] += self.LR * (q_target - q_predict)
+
+
+# Sarsa on-policy
+class Sarsa(RL):
+    def __init__(self, actions,
+                 learning_rate=0.01,
+                 reward_decay=0.9,
+                 e_greedy=0.9):
+        super(Sarsa, self).__init__(actions,
+                                    learning_rate,
+                                    reward_decay,
+                                    e_greedy)
+
+    def learn(self, s, a, r, s_, a_):
+        self.check_state_exist(s_)
+        q_predict = self.q_table.loc[s, a]
+        if s_ != 'terminal':
+            q_target = r + self.Gamma * self.q_table.loc[s_, a_]
+        else:
+            q_target = r
+        self.q_table.loc[s, a] += self.LR * (q_target - q_predict)
+
+
