@@ -1,4 +1,6 @@
 """
+Created on Tue April 24 21:07 2018
+
 @author: hanxy
 """
 
@@ -72,7 +74,7 @@ class Maze(tk.Tk, object):
         for i in range(0, self.n_hells):
             self.hell_points[i] = create_points(self.hell[i], self.canvas, 'black')
 
-        self.bind("<Key>", on_key_pressed)
+        self.bind("<Key>", self.on_key_pressed)
         # pack all
         self.canvas.pack()
 
@@ -131,15 +133,14 @@ class Maze(tk.Tk, object):
         time.sleep(0.01)
         self.update()
 
-
-# key pressed call back function
-def on_key_pressed(event):
-    char = event.char
-    if char in env.action_space:
-        action = env.action_space.index(char)
-        s, r, done = env.step(action)
-        if done:
-            env.reset()
+    # key pressed call back function
+    def on_key_pressed(self, event):
+        char = event.char
+        if char in self.action_space:
+            action = self.action_space.index(char)
+            s, r, done = self.step(action)
+            if done:
+                self.reset()
 
 
 if __name__ == '__main__':
