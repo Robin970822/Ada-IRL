@@ -30,7 +30,7 @@ class Maze(tk.Tk, object):
                  origin=np.array([0, 0]),
                  terminal=np.array([7, 7])):
         super(Maze, self).__init__()
-        self.action_space = ['w', 's', 'a', 'r']
+        self.action_space = ['w', 's', 'a', 'd']
         self.n_actions = len(self.action_space)
         self.n_features = 2
         self.title('maze')
@@ -72,6 +72,7 @@ class Maze(tk.Tk, object):
         for i in range(0, self.n_hells):
             self.hell_points[i] = create_points(self.hell[i], self.canvas, 'black')
 
+        self.bind("<Key>", on_key_pressed)
         # pack all
         self.canvas.pack()
 
@@ -106,26 +107,39 @@ class Maze(tk.Tk, object):
         s_ = self.canvas.coords(self.rect)
 
         # reward function for Reinforcement Learning
+        done = False
+        # terminal
         if s_ == self.canvas.coords(self.terminal_point):
             reward = 100
             done = True
             s_ = 'terminal'
-        else:
+            return s_, reward, done
+        else:   # hell
             hell_rects = np.zeros((self.n_hells, 4))
             for i in range(0, self.n_hells):
                 hell_rects[i] = self.canvas.coords(self.hell_points[i])
-            if s_ in hell_rects:
-                reward = -10
-                done = True
-                s_ = 'terminal'
-            else:
-                reward = -1
-                done = False
+                if (s_ == hell_rects[i]).all():
+                    reward = -10
+                    done = True
+                    s_ = 'hell'
+                    return s_, reward, done
+        # normal
+        reward = -1
         return s_, reward, done
 
     def render(self):
         time.sleep(0.01)
         self.update()
+
+
+# key pressed call back function
+def on_key_pressed(event):
+    char = event.char
+    if char in env.action_space:
+        action = env.action_space.index(char)
+        s, r, done = env.step(action)
+        if done:
+            env.reset()
 
 
 if __name__ == '__main__':
