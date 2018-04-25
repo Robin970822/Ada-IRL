@@ -82,7 +82,7 @@ class Maze(tk.Tk, object):
         for i in range(0, self.n_hells):
             self.hell_points[i] = create_points(self.hell[i], self.canvas, 'black')
 
-        self.bind("<Key>", self.on_key_pressed)
+        # self.bind("<Key>", self.on_key_pressed)
         # pack all
         self.canvas.pack()
 

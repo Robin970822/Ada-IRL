@@ -76,12 +76,12 @@ class SimpleAdaIRL(object):
         self.check_state_exist(state)
         return np.array(self.reward_weight.loc[state])[0]
 
-
-if __name__ == '__main__':
-    ada_irl = SimpleAdaIRL(5*5)
-    expert = np.array([[0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
-                       [4, 1], [4, 2], [4, 3], [4, 4]])
-    states = np.array([[0, 0], [1, 0], [2, 0], [2, 1], [2, 2],
-                      [2, 3], [1, 3], [0, 3], [0, 4], [1, 4]])
-    ada_irl.store_expert(expert)
-    ada_irl.learn(states)
+#
+# if __name__ == '__main__':
+#     ada_irl = SimpleAdaIRL(5*5)
+#     expert = np.array([[0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
+#                        [4, 1], [4, 2], [4, 3], [4, 4]])
+#     states = np.array([[0, 0], [1, 0], [2, 0], [2, 1], [2, 2],
+#                       [2, 3], [1, 3], [0, 3], [0, 4], [1, 4]])
+#     ada_irl.store_expert(expert)
+#     ada_irl.learn(states)
