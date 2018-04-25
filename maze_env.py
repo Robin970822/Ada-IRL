@@ -13,17 +13,25 @@ SQUAR = UNIT * 3 / 8
 
 
 # create points on canvas
-def create_points(points, canvas, fill):
-    points_center = UNIT / 2 + points * UNIT
-    shape = np.shape(points_center)
+def create_points(point, canvas, fill):
+    rect_center = UNIT / 2 + point * UNIT
+    shape = np.shape(rect_center)
     assert shape[-1] == 2, 'only build 2d maze'
     if len(shape) == 1:
         rect = canvas.create_rectangle(
-            points_center[0] - SQUAR, points_center[1] - SQUAR,
-            points_center[0] + SQUAR, points_center[1] + SQUAR,
+            rect_center[0] - SQUAR, rect_center[1] - SQUAR,
+            rect_center[0] + SQUAR, rect_center[1] + SQUAR,
             fill=fill
         )
     return rect
+
+
+# transfer rectangle on canvas to point
+def transfer_coordinate(rect):
+    rect_center = np.array([(rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2])
+    point = rect_center / UNIT - 0.5
+    point = np.array(point, dtype=int)
+    return point
 
 
 class Maze(tk.Tk, object):
@@ -84,7 +92,7 @@ class Maze(tk.Tk, object):
         self.canvas.delete(self.rect)
         self.rect = create_points(self.origin, self.canvas, 'red')
         # return observation
-        return self.canvas.coords(self.rect)
+        return self.origin
 
     def step(self, action):
         s = self.canvas.coords(self.rect)
@@ -112,9 +120,10 @@ class Maze(tk.Tk, object):
         done = False
         # terminal
         if s_ == self.canvas.coords(self.terminal_point):
-            reward = 100
+            reward = 1000
             done = True
-            s_ = 'terminal'
+            s_ = self.terminal
+            # s_ = 'terminal'
             return s_, reward, done
         else:   # hell
             hell_rects = np.zeros((self.n_hells, 4))
@@ -123,11 +132,11 @@ class Maze(tk.Tk, object):
                 if (s_ == hell_rects[i]).all():
                     reward = -10
                     done = True
-                    s_ = 'terminal'
-                    return s_, reward, done
+                    # s_ = 'hell'
+                    return transfer_coordinate(s_), reward, done
         # normal
         reward = -1
-        return s_, reward, done
+        return transfer_coordinate(s_), reward, done
 
     def render(self):
         time.sleep(0.01)
@@ -140,6 +149,7 @@ class Maze(tk.Tk, object):
         if char in self.action_space:
             action = self.action_space.index(char)
             s, r, done = self.step(action)
+            print s
             if done:
                 self.reset()
 

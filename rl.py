@@ -69,7 +69,7 @@ class QLearning(RL):
     def learn(self, s, a, r, s_):
         self.check_state_exist(s_)
         q_predict = self.q_table.loc[s, a]
-        if s_ != 'terminal':
+        if s_ != 'terminal' and s_ != 'hell':
             q_target = r + self.Gamma * self.q_table.loc[s_, :].max()
         else:
             q_target = r
@@ -90,7 +90,7 @@ class Sarsa(RL):
     def learn(self, s, a, r, s_, a_):
         self.check_state_exist(s_)
         q_predict = self.q_table.loc[s, a]
-        if s_ != 'terminal':
+        if s_ != 'terminal' and s_ != 'hell':
             q_target = r + self.Gamma * self.q_table.loc[s_, a_]
         else:
             q_target = r
@@ -127,7 +127,7 @@ class SarsaLambda(RL):
     def learn(self, s, a, r, s_, a_):
         self.check_state_exist(s_)
         q_predict = self.q_table.loc[s, a]
-        if s_ != 'terminal':
+        if s_ != 'terminal' and s_ != 'hell':
             q_target = r + self.Gamma * self.q_table.loc[s_, a_]
         else:
             q_target = r
