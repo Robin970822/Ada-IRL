@@ -24,7 +24,7 @@ class SimpleAdaIRL(object):
         length = min(len(self.expert), len(states))
         states = states[0:length]
         expert = self.expert[0:length]
-        print len(states)
+        # print len(states)
         # calculate error_rate
         error_rate = 0
         for i in range(length):

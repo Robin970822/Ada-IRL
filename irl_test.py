@@ -60,21 +60,24 @@ class IRLTest:
 
             # initial observation
             observation = self.env.reset()
+            action = self.RL.choose_action(str(observation))
             states = observation
+
             while True:
                 # fresh env
                 self.env.render()
 
-                action = self.RL.choose_action(str(observation))
+                action_ = self.RL.choose_action(str(observation))
 
                 observation_, reward, done = self.env.step(action)
 
                 reward += self.IRL.get_reward(str(observation_))
 
                 self.RL.learn(str(observation), action, reward,
-                              str(observation_))
+                              str(observation_), action_)
 
                 observation = observation_
+                action = action_
                 states = np.vstack((states, observation))
 
                 if done:
@@ -94,5 +97,5 @@ class IRLTest:
 
 
 if __name__ == '__main__':
-    iri_test = IRLTest(episode=130)
+    iri_test = IRLTest(episode=100, rl=SarsaLambda)
     iri_test.main()
