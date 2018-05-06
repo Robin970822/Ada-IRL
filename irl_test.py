@@ -3,6 +3,9 @@ Created on Wed April 25 16:06 2018
 
 @author: hanxy
 """
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 from maze_env import Maze
 from rl import *
 from irl import *
@@ -11,7 +14,7 @@ import time
 
 class IRLTest:
     def __init__(self, episode=10, env=Maze, irl=AdaIRL, rl=QLearning):
-        self.env = env()
+        self.env = env(hell=np.array([[6, 1], [1, 6], [4, 7], [7, 4]]), terminal=np.array([5,5]))
         self.RL = rl(actions=list(range(self.env.n_actions)))
         self.IRL = irl(state_space=self.env.row * self.env.col)
         self.expert = 0
@@ -62,7 +65,7 @@ class IRLTest:
             states = observation
             eq_r = 0
             eq_step = 0
-            while True: # and eq_step < len(self.IRL.expert) + 5:
+            while True and eq_step < len(self.IRL.expert)*3:
                 # print eq_step
                 # fresh env
                 self.env.render()
@@ -71,7 +74,7 @@ class IRLTest:
 
                 observation_, reward, done = self.env.step(action)
 
-                reward = self.IRL.reward(observation_)
+                reward = self.IRL.reward(observation_,)
 
                 self.RL.learn(observation, action, reward,
                               observation_)
@@ -91,8 +94,21 @@ class IRLTest:
 
         print 'Game Over'
         print self.RL.q_table
-        print self.IRL.reward_weight.reshape([self.env.col, self.env.row])
-        # env.destroy()
+        reward_weight = self.IRL.reward_weight.reshape([self.env.col, self.env.row])
+        expert_reward = self.IRL.reward_weight[self.expert]
+        print reward_weight
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        x = np.arange(self.env.col)
+        y = np.arange(self.env.row)
+        ax.plot_surface(x, y, reward_weight, cmap=plt.cm.hot)
+        ax.contourf(x, y, reward_weight, zdir='z', offset=-1, cmap=plt.cm.hot)
+        plt.show()
+
+        print expert_reward
+        x = np.arange(len(self.IRL.expert))
+        plt.plot(x, expert_reward, 'r-', lw=5)
+        plt.show()
 
     def main(self):
         print 'Game begin'

@@ -82,11 +82,12 @@ class SimpleAdaIRL(object):
 
 
 class AdaIRL(object):
-    def __init__(self, state_space, discount_factor=0.7):
+    def __init__(self, state_space, discount_factor=0.99, epsilon=1e-10):
         self.state_space = state_space
         self.ada_weight = np.ones(state_space) / state_space
         self.reward_weight = np.zeros(state_space)
         self.GAMMA = discount_factor
+        self.Epsilon = epsilon
 
     def store_expert(self, expert):
         # step x state_code
@@ -136,10 +137,14 @@ class AdaIRL(object):
     def _update_ada_weight(self, error_rate, equal, unequal):
         self.ada_weight[equal] *= error_rate / (1 - error_rate)
         self.ada_weight[unequal] *= 1
-        self.ada_weight /= np.sum(self.ada_weight)
+        if np.sum(self.ada_weight) < self.Epsilon:
+            print 'Converge'
+        else:
+            self.ada_weight /= np.sum(self.ada_weight)
 
     def _update_reward_weight(self, searching_direction):
         self.reward_weight += self.ada_weight * searching_direction
+        self.reward_weight = np.clip(self.reward_weight, -10, 10)
         # print 'reward weight', self.reward_weight
 
     # return the feature vector of state
