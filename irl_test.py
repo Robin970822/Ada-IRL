@@ -10,11 +10,11 @@ import time
 
 
 class IRLTest:
-    def __init__(self, episode=10, env=Maze, irl=SimpleAdaIRL, rl=QLearning):
+    def __init__(self, episode=10, env=Maze, irl=AdaIRL, rl=QLearning):
         self.env = env()
         self.RL = rl(actions=list(range(self.env.n_actions)))
         self.IRL = irl(state_space=self.env.row * self.env.col)
-        self.expert = np.array([0, 0])
+        self.expert = 0
         self.Episode = episode
 
     # store expert from human demonstration
@@ -56,38 +56,42 @@ class IRLTest:
     # test Ada-IRL in simple maze
     def ada_irl_update(self):
         for episode in range(self.Episode):
-            print "Episode %d" % episode
-
             # initial observation
             observation = self.env.reset()
-            action = self.RL.choose_action(str(observation))
+            # action = self.RL.choose_action(observation)
             states = observation
-
-            while True:
+            eq_r = 0
+            eq_step = 0
+            while True: # and eq_step < len(self.IRL.expert) + 5:
+                # print eq_step
                 # fresh env
                 self.env.render()
 
-                action_ = self.RL.choose_action(str(observation))
+                action = self.RL.choose_action(observation)
 
                 observation_, reward, done = self.env.step(action)
 
-                reward += self.IRL.get_reward(str(observation_))
+                reward = self.IRL.reward(observation_)
 
-                self.RL.learn(str(observation), action, reward,
-                              str(observation_), action_)
+                self.RL.learn(observation, action, reward,
+                              observation_)
 
                 observation = observation_
-                action = action_
+                # action = action_
                 states = np.vstack((states, observation))
+                eq_r += reward
+                eq_step += 1
 
                 if done:
                     break
                 # print states
             self.IRL.learn(states)
+            print "Episode %d | Reward" % episode, eq_r
+            # print self.IRL.reward_weight
 
-        # print 'Game Over'
-        # print RL.q_table
-        print self.IRL.reward_weight
+        print 'Game Over'
+        print self.RL.q_table
+        print self.IRL.reward_weight.reshape([self.env.col, self.env.row])
         # env.destroy()
 
     def main(self):
@@ -97,5 +101,5 @@ class IRLTest:
 
 
 if __name__ == '__main__':
-    iri_test = IRLTest(episode=100, rl=SarsaLambda)
+    iri_test = IRLTest(episode=300, rl=QLearning)
     iri_test.main()

@@ -56,6 +56,7 @@ class Maze(tk.Tk, object):
         self.n_hells = np.shape(self.hell)[0]  # number of hells
         self.geometry('{0}x{1}'.format(self.row * UNIT,
                                        self.col * UNIT))
+        self.is_encode = True
         self._build_maze()
 
     def _build_maze(self):
@@ -91,8 +92,12 @@ class Maze(tk.Tk, object):
         time.sleep(0.5)
         self.canvas.delete(self.rect)
         self.rect = create_points(self.origin, self.canvas, 'red')
+
         # return observation
-        return self.origin
+        if self.is_encode:
+            return self._encode(self.origin)
+        else:
+            return self.origin
 
     def step(self, action):
         s = self.canvas.coords(self.rect)
@@ -124,7 +129,10 @@ class Maze(tk.Tk, object):
             done = True
             s_ = self.terminal
             # s_ = 'terminal'
-            return s_, reward, done
+            if self.is_encode:
+                return self._encode(s_), reward, done
+            else:
+                return s_, reward, done
         else:   # hell
             hell_rects = np.zeros((self.n_hells, 4))
             for i in range(0, self.n_hells):
@@ -133,10 +141,16 @@ class Maze(tk.Tk, object):
                     reward = -10
                     done = True
                     # s_ = 'hell'
-                    return transfer_coordinate(s_), reward, done
+                    if self.is_encode:
+                        return self._encode(transfer_coordinate(s_)), reward, done
+                    else:
+                        return transfer_coordinate(s_), reward, done
         # normal
-        reward = -1
-        return transfer_coordinate(s_), reward, done
+        reward = 0
+        if self.is_encode:
+            return self._encode(transfer_coordinate(s_)), reward, done
+        else:
+            return transfer_coordinate(s_), reward, done
 
     def render(self):
         time.sleep(0.01)
@@ -152,6 +166,10 @@ class Maze(tk.Tk, object):
             print s
             if done:
                 self.reset()
+
+    # encode state
+    def _encode(self, state):
+        return state[0] + state[1] * self.col
 
 
 if __name__ == '__main__':
