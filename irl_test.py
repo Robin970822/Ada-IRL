@@ -10,11 +10,12 @@ from maze_env import Maze
 from rl import *
 from irl import *
 import time
+import img_utils
 
 
 class IRLTest:
     def __init__(self, episode=10, env=Maze, irl=AdaIRL, rl=QLearning):
-        self.env = env(hell=np.array([[6, 1], [1, 6], [4, 7], [7, 4]]), terminal=np.array([5,5]))
+        self.env = env(hell=np.array([[6, 1], [1, 6], [4, 7], [7, 4]]), terminal=np.array([5, 5]))
         self.RL = rl(actions=list(range(self.env.n_actions)))
         self.IRL = irl(state_space=self.env.row * self.env.col)
         self.expert = 0
@@ -97,13 +98,39 @@ class IRLTest:
         reward_weight = self.IRL.reward_weight.reshape([self.env.col, self.env.row])
         expert_reward = self.IRL.reward_weight[self.expert]
         print reward_weight
-        fig = plt.figure()
-        ax = fig.gca(projection='3d')
-        x = np.arange(self.env.col)
-        y = np.arange(self.env.row)
-        ax.plot_surface(x, y, reward_weight, cmap=plt.cm.hot)
-        ax.contourf(x, y, reward_weight, zdir='z', offset=-1, cmap=plt.cm.hot)
+
+        actual_reward = np.zeros_like(reward_weight)
+        actual_reward[5, 5] = 10
+        actual_reward[6, 1] = -5
+        actual_reward[1, 6] = -5
+        actual_reward[4, 7] = -5
+        actual_reward[7, 4] = -5
+        print actual_reward
+
+        plt.figure(figsize=(25, 10))
+        plt.subplot(1, 2, 1)
+        img_utils.heatmap2d(actual_reward, 'Reward MAP - Ground Truth', block=False)
+        plt.subplot(1, 2, 2)
+        img_utils.heatmap2d(reward_weight, 'Reward MAP - ddlGAN', block=False)
         plt.show()
+
+        img_utils.heatmap3d(reward_weight, 'Reward MAP - ddlGAN')
+        plt.show()
+
+        #fig = plt.figure()
+        #ax = fig.gca(projection='3d')
+        #x = np.arange(self.env.col)
+        #y = np.arange(self.env.row)
+        #ax.plot_surface(x, y, reward_weight, cmap=plt.cm.hot)
+        #ax.contourf(x, y, reward_weight, zdir='z', cmap=plt.cm.hot)
+        #plt.show()
+
+        #fig = plt.figure()
+        #ax = fig.gca(projection='3d')
+        #x = np.arange(self.env.col)
+        #y = np.arange(self.env.row)
+        #ax.contourf(x, y, actual_reward, zdir='z', cmap=plt.cm.hot)
+        #plt.show()
 
         print expert_reward
         x = np.arange(len(self.IRL.expert))
