@@ -117,21 +117,6 @@ class IRLTest:
         img_utils.heatmap3d(reward_weight, 'Reward MAP - ddlGAN')
         plt.show()
 
-        #fig = plt.figure()
-        #ax = fig.gca(projection='3d')
-        #x = np.arange(self.env.col)
-        #y = np.arange(self.env.row)
-        #ax.plot_surface(x, y, reward_weight, cmap=plt.cm.hot)
-        #ax.contourf(x, y, reward_weight, zdir='z', cmap=plt.cm.hot)
-        #plt.show()
-
-        #fig = plt.figure()
-        #ax = fig.gca(projection='3d')
-        #x = np.arange(self.env.col)
-        #y = np.arange(self.env.row)
-        #ax.contourf(x, y, actual_reward, zdir='z', cmap=plt.cm.hot)
-        #plt.show()
-
         print expert_reward
         x = np.arange(len(self.IRL.expert))
         plt.plot(x, expert_reward, 'r-', lw=5)
